@@ -35,7 +35,7 @@ public class MeetingTeacher extends AppCompatActivity {
     private CalendarView calendarCreate;
     private int dayCreate, monthCreate, yearCreate;
 
-    TextInputLayout startCreate, endCreate;
+    TextInputLayout startCreate, endCreate, price;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +45,7 @@ public class MeetingTeacher extends AppCompatActivity {
         startCreate =  findViewById(R.id.startCreate);
         endCreate = findViewById(R.id.endCreate);
         meetingsList = findViewById(R.id.meetingsList);
+        price = findViewById(R.id.price);
         teacherName =UserInformation.getSavedUsername(this);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         teachersRef = database.getReference("teachers");
@@ -70,7 +71,8 @@ public class MeetingTeacher extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if(isNumeric(startCreate.getEditText().getText().toString()) &&
-                    isNumeric(endCreate.getEditText().getText().toString())
+                    isNumeric(endCreate.getEditText().getText().toString()) &&
+                    isNumeric(price.getEditText().getText().toString())
             ){
                 if(checkDate())
                     uploadMeeting();
@@ -85,7 +87,7 @@ public class MeetingTeacher extends AppCompatActivity {
     });
     }
     private void loadMettings() {
-        teachersRef.orderByChild("name").equalTo(teacherName)
+        teachersRef.orderByKey().equalTo(teacherName)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -93,7 +95,7 @@ public class MeetingTeacher extends AppCompatActivity {
                             for (DataSnapshot teacherSnapshot : dataSnapshot.getChildren()) {
                                 Teacher teacher = teacherSnapshot.getValue(Teacher.class);
                                 if (teacher != null && teacher.getMeetings() != null) {
-                                    displayMeetings(teacher.getMeetings(),teacher, teacherSnapshot);
+                                    displayMeetings(teacher.getMeetings(),teacher);
                                 }
                             }
                         }
@@ -104,7 +106,7 @@ public class MeetingTeacher extends AppCompatActivity {
                     }
                 });
     }
-    private void displayMeetings(List<Meeting> MettingsList, Teacher teacher, DataSnapshot teacherSnapshot) {
+    private void displayMeetings(List<Meeting> MettingsList, Teacher teacher) {
 
         ArrayAdapter<Meeting> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, MettingsList);
         meetingsList.setAdapter(adapter);
@@ -112,13 +114,21 @@ public class MeetingTeacher extends AppCompatActivity {
         meetingsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MeetingTeacher.this);
-                builder.setTitle("Meeting");
-                builder.setMessage(teacher.getMeetings().get(position).toString());
+                builder.setTitle("Meeting Details");
+                builder.setMessage(teacher.getMeetings().get(position).printDetails());
                 builder.setPositiveButton("Delete Meeting", new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int which) {
+                        if(!teacher.getMeetings().get(position).checkIfCanCancel()){
+                            Toast.makeText(MeetingTeacher.this,
+                                    "It is not possible to cancel 4 hours before the meeting"
+                                    , Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            return;
+                        }
                         teacher.NotifyToDeleteMeeting(teacher.getMeetings().get(position));
-                        teacherSnapshot.getRef().child("meetings").setValue(teacher.getMeetings());
+                        //teacherSnapshot.getRef().child("meetings").setValue(teacher.getMeetings());
+                        teachersRef.child(teacherName).setValue(teacher);
                         adapter.notifyDataSetChanged();
                         Toast.makeText(MeetingTeacher.this, "Meeting delete successfully", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
@@ -134,7 +144,8 @@ public class MeetingTeacher extends AppCompatActivity {
                 Integer.toString(monthCreate),
                 Integer.toString(yearCreate),
                 startCreate.getEditText().getText().toString(),
-                endCreate.getEditText().getText().toString());        // Check if at least one link is provided
+                endCreate.getEditText().getText().toString(),
+                Integer.parseInt(price.getEditText().getText().toString()));        // Check if at least one link is provided
         if (newMeeting == null ) {
             Toast.makeText(MeetingTeacher.this, "Please enter all the details", Toast.LENGTH_SHORT).show();
             return;

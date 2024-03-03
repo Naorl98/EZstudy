@@ -19,7 +19,7 @@ public class Register extends AppCompatActivity {
 
     CheckBox TeacherCheck;
     Button Submit, backReg;
-    TextInputLayout UsernameReg, PasswordReg, EmailReg, SubjectReg, ageReg;
+    TextInputLayout UsernameReg, PasswordReg, EmailReg, SubjectReg, nameReg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +43,7 @@ public class Register extends AppCompatActivity {
         EmailReg = findViewById(R.id.EmailReg);
         SubjectReg = findViewById(R.id.SubjectReg);
         Submit = findViewById(R.id.Submit);
-        ageReg = findViewById(R.id.ageReg);
+        nameReg = findViewById(R.id.nameReg);
         backReg = findViewById(R.id.backReg);
         backReg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,7 +58,7 @@ public class Register extends AppCompatActivity {
                 String username = UsernameReg.getEditText().getText().toString();
                 String password = PasswordReg.getEditText().getText().toString();
                 String email = EmailReg.getEditText().getText().toString();
-                String age = ageReg.getEditText().getText().toString();
+                String name = nameReg.getEditText().getText().toString();
                 // Check if a user with the same name and password already exists
                 EasyStudy.checkUserExists(username, password, Register.this, new EasyStudy.UserTypeCallback() {
                     @Override
@@ -82,10 +82,10 @@ public class Register extends AppCompatActivity {
                                 }
 
                                 // Create a Teacher object
-                                Teacher newTeacher = new Teacher(username, password, age, phone, email, shortBio, subjects);
+                                Teacher newTeacher = new Teacher(name, password, "", phone, email, shortBio, subjects);
 
                                 // Add the teacher to Firebase
-                                EasyStudy.addTeacher(newTeacher, Register.this);
+                                EasyStudy.addTeacher(newTeacher, username, Register.this);
 
                                 UserInformation.saveUserCredentials(Register.this, username, password);
 
@@ -93,11 +93,12 @@ public class Register extends AppCompatActivity {
                                 startActivity(new Intent(Register.this, TeacherProfile.class));
                             }
                             else {
+
                                 // If it's a student, create a Student object
-                                User newStudent = new User(username, password, age, "", email, "");
+                                User newStudent = new User(name, password, "", "", email, "");
 
                                 // Add the student to Firebase
-                                EasyStudy.addStudent(newStudent, Register.this);
+                                EasyStudy.addStudent(newStudent, username,  Register.this);
                                 UserInformation.saveUserCredentials(Register.this, username, password);
 
                                 // Navigate to the appropriate page based on user type

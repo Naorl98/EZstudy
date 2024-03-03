@@ -28,11 +28,12 @@ import java.util.List;
 public class SearchTeachers extends AppCompatActivity {
     private ListView teacherListView;
     private List<Teacher> foundTeachers;
+    private List<String> foundUsernames;
     private ArrayAdapter adapter;
     private DatabaseReference teachersRef;
     private LinearLayout buttonsLayout;
     Button SearchButton, back;
-    TextInputLayout ByName, ByAge, BySubject;
+    TextInputLayout ByName, ByUsername, BySubject;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -43,7 +44,7 @@ public class SearchTeachers extends AppCompatActivity {
         back = findViewById(R.id.back);
         SearchButton = findViewById(R.id.SearchButton);
         ByName = findViewById(R.id.ByName);
-        ByAge = findViewById(R.id.ByAge);
+        ByUsername = findViewById(R.id.ByUserName);
         BySubject = findViewById(R.id.BySubject);
 
 
@@ -64,7 +65,7 @@ public class SearchTeachers extends AppCompatActivity {
             public void onClick(View v) {
                 // Get the input values
                 String name = ByName.getEditText().getText().toString().trim();
-                String age = ByAge.getEditText().getText().toString().trim();
+                String username = ByUsername.getEditText().getText().toString().trim();
                 String subject = BySubject.getEditText().getText().toString().trim();
                 // Initialize Firebase database reference
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -72,29 +73,30 @@ public class SearchTeachers extends AppCompatActivity {
                 // Initialize ListView and List
                 teacherListView = findViewById(R.id.TeacherListView);
                 foundTeachers = new ArrayList<>();
+                foundUsernames = new ArrayList<>();
                 adapter = new ArrayAdapter<>(SearchTeachers.this,android.R.layout.simple_list_item_1, foundTeachers);
                 teacherListView.setAdapter(adapter);
 
                 Log.i("TAG", name);
-                Log.i("TAG", age);
+                Log.i("TAG", username);
                 Log.i("TAG", subject);
                 // Perform the search in Firebase database
                 // Perform the search in Firebase database
                 Query query;
-                if (!name.isEmpty() && !age.isEmpty() && !subject.isEmpty()) {
+                if (!name.isEmpty() && !username.isEmpty() && !subject.isEmpty()) {
                     // Search by all parameters (name, age, and subject)
-                    query = ((teachersRef.orderByChild("name").equalTo(name)).orderByChild("age").equalTo(age))
+                    query = ((teachersRef.orderByKey().equalTo(username)).orderByChild("name").equalTo(name))
                             .orderByChild("subject").equalTo(subject);
                 }
-                else if (!name.isEmpty() && age.isEmpty() && subject.isEmpty()) {
+                else if (!name.isEmpty() && username.isEmpty() && subject.isEmpty()) {
                     // Search only by name
                     query = teachersRef.orderByChild("name").equalTo(name);
                 }
-                else if (name.isEmpty() && !age.isEmpty() && subject.isEmpty()) {
-                    // Search only by age
-                    query = teachersRef.orderByChild("age").equalTo(name);
+                else if (name.isEmpty() && !username.isEmpty() && subject.isEmpty()) {
+                    // Search only by username
+                    query = teachersRef.orderByKey().equalTo(username);
                 }
-                else if (name.isEmpty() && age.isEmpty() && !subject.isEmpty()) {
+                else if (name.isEmpty() && username.isEmpty() && !subject.isEmpty()) {
                     // Search only by subject
                     query = teachersRef.orderByChild("subjects/" + subject);
                 } else {
@@ -114,10 +116,11 @@ public class SearchTeachers extends AppCompatActivity {
 
                                 if (teacher != null &&
                                         (name.isEmpty() || teacher.getName().toLowerCase().equals(name.toLowerCase())) &&
-                                        (age.isEmpty() || teacher.getAge().toLowerCase().equals(age.toLowerCase())) &&
+                                        (username.isEmpty() || teacherSnapshot.getKey().equals(username)) &&
                                         (subject.isEmpty() || teacherContainsSubject(teacher, subject.toLowerCase()))) {
                                     // If conditions are met, add the teacher to the list of found teachers
                                     foundTeachers.add(teacher);
+                                    foundUsernames.add(teacherSnapshot.getKey());
                                 }
                             }
                         }
@@ -129,7 +132,7 @@ public class SearchTeachers extends AppCompatActivity {
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                                 Intent intent = new Intent(SearchTeachers.this, ViewTeacher.class);
-                                intent.putExtra("TeacherName", foundTeachers.get(position).getName());
+                                intent.putExtra("TeacherUsername", foundUsernames.get(position));
                                 startActivity(intent);
                             }
                         });

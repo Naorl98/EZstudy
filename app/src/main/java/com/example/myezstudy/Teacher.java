@@ -18,10 +18,12 @@ public class Teacher extends User {
     private List<String> links;
 
     // Empty constructor required for Firebase
-    public Teacher() {}
+    public Teacher(
+    ) {
+        super();
+    }
     public Teacher(String name,String password ,String age, String phone, String email, String shortBio, List<String> subjects) {
         super( name, password , age,  phone,  email,  shortBio);
-
         this.subjects = subjects;
     }
 
@@ -48,21 +50,36 @@ public class Teacher extends User {
             this.links = new ArrayList<>();
         this.links.add(linksToUpdate);
     }
-    public void addMeeting(Meeting MettingToAdd) {
+    @Override
+    public void addMeeting(Meeting MeetingToAdd) {
         if(super.getMeetings() == null)
             super.setMeetings(new ArrayList<>());
-        super.getMeetings().add(MettingToAdd);
+        super.getMeetings().add(MeetingToAdd);
         Collections.sort(super.getMeetings());
+    }
+    public void addMessage(Message MessageToAdd) {
+        if(super.getMessages() == null)
+            super.setMessages(new ArrayList<>());
+        super.getMessages().add(MessageToAdd);
+        Collections.sort(super.getMessages());
     }
 
     @Override
-    public void Notify(Meeting M) {
+    public void  Notify(Meeting M) {
         for (Meeting meeting : super.getMeetings()) {
             if (meeting.CompareTo(M)) {
-                if (!meeting.ifAvailable())
+                if (!meeting.ifAvailable()) {
+                    Message newM = new Message("There is a new meeting:\n" + meeting);
+                    addMessage(newM);
                     meeting.CancelMetting();
-                else
-                    meeting.addPartner(M.getPartner());
+
+                }
+                else {
+                    meeting.addPartner(M.getPartner(), M.getPartnerUsername());
+                    Message newM = new Message("There is a new meeting:\n" + meeting);
+                    addMessage(newM);
+                }
+                IncNewMessage();
                 return;
             }
         }
@@ -90,8 +107,6 @@ public class Teacher extends User {
                     day > Integer.parseInt(meeting.getDay()))
                 this.NotifyToDeleteMeeting(meeting);
         }
-        teacherSnapshot.getRef().child("meetings").setValue(super.getMeetings());
-
     }
 @Override
     public void NotifyToDeleteMeeting(Meeting M) {
@@ -103,7 +118,7 @@ public class Teacher extends User {
                 // Initialize Firebase database reference
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference studentsRef = database.getReference("students");
-                studentsRef.orderByChild("name").equalTo(meeting.getPartner().getName())
+                studentsRef.orderByKey().equalTo(meeting.getPartnerUsername())
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -112,7 +127,9 @@ public class Teacher extends User {
                                         User student = studentSnapshot.getValue(User.class);
                                         if (student != null && student.getMeetings() != null) {
                                             student.NotifyToDeleteMeeting(meeting);
-                                            studentSnapshot.getRef().child("meetings").setValue(student.getMeetings());
+                                            studentsRef.child(meeting.getPartnerUsername()).setValue(student);
+
+
 
                                         }
                                     }

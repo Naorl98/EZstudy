@@ -14,9 +14,8 @@ import com.google.android.material.textfield.TextInputLayout;
 public class Update extends AppCompatActivity {
     private Button backUp;
     private Button updateButton;
-    private TextInputLayout emailEditText;
-    private TextInputLayout bioEditText;
-    private TextInputLayout phoneEditText;
+    private TextInputLayout emailEditText, phoneEditText, bioEditText, ageEditText;
+
     private String username;
     private String password;
 
@@ -32,11 +31,11 @@ public class Update extends AppCompatActivity {
         // Grab the references to the back and update button
         backUp = findViewById(R.id.backUp);
         updateButton = findViewById(R.id.updateButton);
-
         // Get references to the TextInputEditTexts
         emailEditText = findViewById(R.id.emailUp);
         bioEditText = findViewById(R.id.bioUp);
         phoneEditText = findViewById(R.id.phoneUp);
+        ageEditText = findViewById(R.id.ageUp);
 
         // Set click functionality for back button
         backUp.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +86,7 @@ public class Update extends AppCompatActivity {
         getDetails();
         Log.i("Update", "Updating profile");
         Toast.makeText(Update.this, "Updating profile...", Toast.LENGTH_SHORT).show();
-
+        String updatedAge = ageEditText.getEditText().getText().toString();
         String updatedEmail = emailEditText.getEditText().getText().toString();
         String updatedBio = bioEditText.getEditText().getText().toString();
         String updatedPhone = phoneEditText.getEditText().getText().toString();
@@ -97,13 +96,13 @@ public class Update extends AppCompatActivity {
         fireBaseData.searchStudent(username, password, new FireBaseData.UserSearchListener() {
             @Override
             public void onStudentFound() {
-                updateStudentProfile(updatedEmail, updatedBio, updatedPhone);
+                updateStudentProfile(updatedEmail, updatedBio, updatedPhone, updatedAge);
             }
 
             @Override
             public void onTeacherFound() {
                 // If user is found as a teacher, update teacher profile
-                updateTeacherProfile(updatedEmail, updatedBio, updatedPhone);
+                updateTeacherProfile(updatedEmail, updatedBio, updatedPhone, updatedAge);
             }
 
             @Override
@@ -118,7 +117,7 @@ public class Update extends AppCompatActivity {
                     @Override
                     public void onTeacherFound() {
                         // If user is found as a teacher, update teacher profile
-                        updateTeacherProfile(updatedEmail, updatedBio, updatedPhone);
+                        updateTeacherProfile(updatedEmail, updatedBio, updatedPhone, updatedAge );
                     }
 
                     @Override
@@ -144,9 +143,9 @@ public class Update extends AppCompatActivity {
     }
 
 
-    private void updateStudentProfile(String email, String bio, String phone) {
+    private void updateStudentProfile(String email, String bio, String phone, String age) {
         FireBaseData fireBaseData = new FireBaseData();
-        fireBaseData.updateStudent(username, password, email, bio, phone, new FireBaseData.UserSearchListener() {
+        fireBaseData.updateStudent(username, password, email, age, bio, phone, new FireBaseData.UserSearchListener() {
             @Override
             public void onStudentFound() {
                 Log.i("Update", "Student profile updated successfully");
@@ -172,9 +171,9 @@ public class Update extends AppCompatActivity {
         });
     }
 
-    private void updateTeacherProfile(String email, String bio, String phone) {
+    private void updateTeacherProfile(String email, String bio, String phone, String age) {
         FireBaseData fireBaseData = new FireBaseData();
-        fireBaseData.updateTeacher(username, password, email, bio, phone, new FireBaseData.UserSearchListener() {
+        fireBaseData.updateTeacher(username, password, email, age, bio, phone, new FireBaseData.UserSearchListener() {
             @Override
             public void onStudentFound() {
                 // This method will not be called in this scenario

@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.DialogInterface;
@@ -34,7 +35,7 @@ public class ViewTeacher extends AppCompatActivity {
 
     private ListView FilesList, MeetingListView;
     private DatabaseReference teachersRef, studentRef;
-    private String teacherName;
+    private String TeacherUsername;
     private Button BackBut;
 
 
@@ -54,9 +55,9 @@ public class ViewTeacher extends AppCompatActivity {
         studentRef = database.getReference("students");
 
         // Retrieve teacher name directly without checking the intent
-        teacherName = getIntent().getStringExtra("TeacherName");
+        TeacherUsername = getIntent().getStringExtra("TeacherUsername");
 
-        if (teacherName == null || teacherName.isEmpty()) {
+        if (TeacherUsername == null || TeacherUsername.isEmpty()) {
             // Handle the case where teacherName is not provided
             finish(); // Close the activity if teacherName is not available
         }
@@ -73,7 +74,7 @@ public class ViewTeacher extends AppCompatActivity {
 
     }
     private void loadMettings() {
-        teachersRef.orderByChild("name").equalTo(teacherName)
+        teachersRef.orderByKey().equalTo(TeacherUsername)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -95,13 +96,13 @@ public class ViewTeacher extends AppCompatActivity {
                 });
     }
     private void displayMeetings(List<Meeting> MettingsList, Teacher teacher, DataSnapshot teacherSnapshot) {
-        List<Meeting> AvailabileMeetings = MettingsList;
+        List<Meeting> AvailabileMeetings = new ArrayList<>(MettingsList);
+        Teacher teacherToUpdate = teacher;
         for(Meeting M : MettingsList){
             if(!M.ifAvailable()){
                 AvailabileMeetings.remove(M);
             }
         }
-        
         String nameStudent = UserInformation.getSavedUsername(this);
         ArrayAdapter<Meeting> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, AvailabileMeetings);
         MeetingListView.setAdapter(adapter);
@@ -110,11 +111,12 @@ public class ViewTeacher extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(ViewTeacher.this);
                 builder.setTitle("Make a Meeting");
-                builder.setMessage("Do u want to choose that meeting?");
+                builder.setMessage("Do u want to choose that meeting? \n" +
+                        teacher.getMeetings().get(position).printDetails());
                 builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int which) {
-                        studentRef.orderByChild("name").equalTo(nameStudent)
+                        studentRef.orderByKey().equalTo(nameStudent)
                                 .addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -122,10 +124,11 @@ public class ViewTeacher extends AppCompatActivity {
                                             for (DataSnapshot studentSnapShot : dataSnapshot.getChildren()) {
                                                 User student = studentSnapShot.getValue(User.class);
                                                 if (student != null) {
-                                                    student.Notify( new Meeting( teacher,teacher.getMeetings().get(position) ));
-                                                    teacher.Notify(new Meeting( student,teacher.getMeetings().get(position) ));
-                                                    studentRef.child(studentSnapShot.getKey()).setValue(student);
-                                                    teacherSnapshot.getRef().child("meetings").setValue(teacher.getMeetings());
+                                                    student.addMeeting( new Meeting( teacher,TeacherUsername, teacher.getMeetings().get(position) ));
+                                                    teacherToUpdate.Notify(new Meeting( student, nameStudent ,teacher.getMeetings().get(position) ));
+                                                    teachersRef.child(TeacherUsername).setValue(teacherToUpdate);
+                                                    //studentSnapShot.getRef().child("meetings").setValue(student.getMeetings());
+                                                    studentRef.child(nameStudent).setValue(student);
                                                     Toast.makeText(ViewTeacher.this, "Meeting created successfully", Toast.LENGTH_SHORT).show();
 
                                                     // Notify the user that links have been uploaded
@@ -141,6 +144,7 @@ public class ViewTeacher extends AppCompatActivity {
 
                                     }
                                 });
+
 
                     }
                 });
@@ -164,7 +168,7 @@ public class ViewTeacher extends AppCompatActivity {
     }
 
     private void loadFiles() {
-        teachersRef.orderByChild("name").equalTo(teacherName)
+        teachersRef.orderByKey().equalTo(TeacherUsername)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

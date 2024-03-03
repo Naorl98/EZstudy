@@ -22,8 +22,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class TeacherProfile extends AppCompatActivity {
-    private Button logout ,meetings, profileEdit, links;
-    private String name;
+    private Button logout ,meetings, profileEdit, links, messagesTeachButton;
+    private String Username;
     private DatabaseReference teachersRef;
     private int count;
     private CalendarView calendarMettings;
@@ -35,18 +35,20 @@ public class TeacherProfile extends AppCompatActivity {
         logout = findViewById(R.id.logout);
         meetings = findViewById(R.id.meetings);
         links = findViewById(R.id.links);
+        messagesTeachButton = findViewById(R.id.messagesTeachButton);
         profileEdit = findViewById(R.id.profileEdit);
         calendarMettings =  findViewById(R.id.calendarMettings);
         calendar = Calendar.getInstance();
-        name = UserInformation.getSavedUsername(this);
+        Username = UserInformation.getSavedUsername(this);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         teachersRef = database.getReference("teachers");
-        getDate();
+        getCountOfNew();
         count = 0;
+
         calendarMettings.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                teachersRef.orderByChild("name").equalTo(name)
+                teachersRef.orderByKey().equalTo(Username)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -74,6 +76,13 @@ public class TeacherProfile extends AppCompatActivity {
                 });
             }
 
+        });
+        messagesTeachButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Example
+                startActivity(new Intent(TeacherProfile.this, Messages.class));
+            }
         });
         profileEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,12 +120,27 @@ public class TeacherProfile extends AppCompatActivity {
         });
     }
 
-        public void getDate(){
-        long date = calendarMettings.getDate();
-        SimpleDateFormat SimpleDate = new SimpleDateFormat("dd/MM/yy", Locale.getDefault());
-        calendar.setTimeInMillis(date);
-        String selected_date = SimpleDate.format(calendar.getTime());
-        Toast.makeText(this,selected_date, Toast.LENGTH_SHORT ).show();
-    }
+    public void getCountOfNew() {
+        teachersRef.orderByKey().equalTo(Username)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            for (DataSnapshot teacherSnapshot : dataSnapshot.getChildren()) {
+                                Teacher teacher = teacherSnapshot.getValue(Teacher.class);
+                                if (teacher != null) {
+                                    Toast.makeText(TeacherProfile.this, "There are " + teacher.getNewMessage() + "   new messages"
+                                            , Toast.LENGTH_SHORT).show();
+                                }
 
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        count = 0;
+                    }
+                });
+    }
 }

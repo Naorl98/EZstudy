@@ -20,7 +20,10 @@ public class User {
     private String phone;
     private String email;
     private String shortBio;
-    private List<Meeting> Meetings;
+    private List<Meeting> meetings;
+    private List<Message> messages;
+    private int newMessage; // count new message;
+
 
     // Empty constructor required for Firebase
     public User() {}
@@ -29,14 +32,9 @@ public class User {
         this.age = age;
         this.phone = phone;
         this.email = email;
+        this.newMessage = 0;
     }
-    public User(String name, String password , String age, String phone, String email) {
-        this.name = name;
-        this.password = password;
-        this.age = age;
-        this.phone = phone;
-        this.email = email;
-    }
+
     public User(String name, String password , String age, String phone, String email, String shortBio) {
         this.name = name;
         this.password = password;
@@ -44,8 +42,20 @@ public class User {
         this.phone = phone;
         this.email = email;
         this.shortBio = shortBio;
-        this.Meetings = new ArrayList<>();
+        this.newMessage = 0;
+
+
     }
+    public void IncNewMessage() {
+        newMessage++;
+    }
+    public void setNewMessage(int count) {
+        newMessage = count;
+    }
+    public int getNewMessage() {
+        return newMessage;
+    }
+
 
     public String getName() {
         return name;
@@ -68,20 +78,39 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-    public List<Meeting> getMeetings() { return Meetings; }
+    public List<Meeting> getMeetings() { return meetings; }
+    public List<Message> getMessages() { return messages; }
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
+    }
+
     public void setMeetings(List<Meeting> meetings) {
-        this.Meetings = meetings;
+        this.meetings = meetings;
+    }
+    public void addMeeting(Meeting M) {
+        if(this.meetings == null)
+            this.meetings = new ArrayList<>();
+        meetings.add(M);
+        Collections.sort(this.getMeetings());
+    }
+    public void deleteOldMessages( DatabaseReference ref) {
+        List<Message> allMessages = new ArrayList<>(this.getMessages());
+        for (Message M : allMessages) {
+            if (M.checkIfOld()) {
+                this.getMessages().remove(M);
+            }
+        }
     }
     public void Notify(Meeting M){
-        if(this.Meetings == null)
-            this.Meetings = new ArrayList<>();
-        for( Meeting meeting : Meetings){
+        if(this.meetings == null)
+            this.meetings = new ArrayList<>();
+        for( Meeting meeting : meetings){
             if(meeting.CompareTo(M)){
-                Meetings.remove(meeting);
+                meetings.remove(meeting);
                 // Initialize Firebase database reference
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference teachersRef = database.getReference("teachers");
-                teachersRef.orderByChild("name").equalTo(M.getPartner().getName())
+                teachersRef.orderByKey().equalTo(M.getPartner().getName())
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -90,7 +119,7 @@ public class User {
                                         Teacher teacher = teacherSnapshot.getValue(Teacher.class);
                                         if (teacher != null && teacher.getMeetings() != null) {
                                             teacher.Notify(meeting);
-                                            teacherSnapshot.getRef().child("meetings").setValue(teacher.getMeetings());
+                                            teachersRef.child(M.getPartnerUsername()).setValue(teacher);
 
                                         }
                                     }
@@ -106,26 +135,31 @@ public class User {
 
             }
         }
-        Meetings.add(M);
-        Collections.sort(this.getMeetings());
 
     }
     public void NotifyToDeleteMeeting(Meeting M) {
-        if(this.Meetings == null)
-            this.Meetings = new ArrayList<>();
-        for( Meeting meeting : Meetings) {
+        if(messages == null)
+            messages = new ArrayList<>();
+        if(this.meetings == null)
+            this.meetings = new ArrayList<>();
+        for( Meeting meeting : meetings) {
             if (meeting.CompareTo(M)) {
-                Meetings.remove(meeting);
+                meetings.remove(meeting);
+                this.getMessages().add(new Message("The meeting: " + meeting
+                        + "\n was cancelled"));
+                this.newMessage++;
+                Collections.sort(this.getMessages());
             }
         }
     }
 
+
     public String toString() {
         return
                 "name:" + name +
-                        ", age:" + age +
-                        ", phone:" + phone +"\n" +
-                        ", email:" + email + "\n" +
+                        ", age:" + age + "\n" +
+                        "phone:" + phone +"\n" +
+                        "email:" + email + "\n" +
                         "ShortBio:" + shortBio + "\n";
 
     }

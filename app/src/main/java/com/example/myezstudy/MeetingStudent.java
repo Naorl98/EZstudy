@@ -49,7 +49,7 @@ public class MeetingStudent extends AppCompatActivity {
         });
     }
     private void loadMettings() {
-        studentsRef.orderByChild("name").equalTo(studentName)
+        studentsRef.orderByKey().equalTo(studentName)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -57,7 +57,7 @@ public class MeetingStudent extends AppCompatActivity {
                             for (DataSnapshot studentSnapshot : dataSnapshot.getChildren()) {
                                 User student = studentSnapshot.getValue(User.class);
                                 if (student != null && student.getMeetings() != null) {
-                                    displayMeetings(student.getMeetings(),student, studentSnapshot);
+                                    displayMeetings(student.getMeetings(),student);
                                 }
                             }
                         }
@@ -68,7 +68,7 @@ public class MeetingStudent extends AppCompatActivity {
                     }
                 });
     }
-    private void displayMeetings(List<Meeting> MettingsList, User student, DataSnapshot studentSnapshot) {
+    private void displayMeetings(List<Meeting> MettingsList, User student) {
 
         ArrayAdapter<Meeting> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, MettingsList);
         MeetingListStudent.setAdapter(adapter);
@@ -76,12 +76,19 @@ public class MeetingStudent extends AppCompatActivity {
         MeetingListStudent.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MeetingStudent.this);
-                builder.setTitle("Meeting");
-                builder.setMessage(student.getMeetings().get(position).toString());
+                builder.setTitle("Meeting Details");
+                builder.setMessage(student.getMeetings().get(position).printDetails());
                 builder.setPositiveButton("Delete Meeting", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
+                        if(!student.getMeetings().get(position).checkIfCanCancel()){
+                            Toast.makeText(MeetingStudent.this,
+                                    "It is not possible to cancel 4 hours before the meeting"
+                                    , Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            return;
+                        }
                         student.Notify(student.getMeetings().get(position));
-                        studentSnapshot.getRef().child("meetings").setValue(student.getMeetings());
+                        studentsRef.child(studentName).setValue(student);
                         adapter.notifyDataSetChanged();
                         Toast.makeText(MeetingStudent.this, "Meeting delete successfully", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();

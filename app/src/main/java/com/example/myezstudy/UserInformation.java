@@ -10,6 +10,7 @@ public class UserInformation
     private static final String PREF_NAME = "UserPrefs";
     private static String KEY_USERNAME = "username";
     private static String KEY_PASSWORD = "password";
+    public static String KEY_Type = "User";
 
 
     // Method to save user credentials in SharedPreferences

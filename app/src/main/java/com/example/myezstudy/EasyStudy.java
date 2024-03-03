@@ -19,6 +19,9 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class EasyStudy extends Application {
 
@@ -42,6 +45,7 @@ public class EasyStudy extends Application {
                 context.startActivity(new Intent(context, StudentProfile.class));
                 break;
             case TEACHER:
+                UserInformation.KEY_Type = "Teacher";
                 // Navigate to the teacher's update profile page
                 Log.i(TAG,"teacher");
 
@@ -60,12 +64,12 @@ public class EasyStudy extends Application {
         super.onCreate();
         // Initialize Firebase
         FirebaseApp.initializeApp(this);
-        deleteAllOldMeetings();
+        deleteAllOld();
     }
-    public void deleteAllOldMeetings(){
+    public void deleteAllOld(){
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference teachersRef = database.getReference("teachers");
-        teachersRef.orderByChild("name")
+        teachersRef.orderByKey()
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -74,7 +78,50 @@ public class EasyStudy extends Application {
                                 Teacher teacher = teacherSnapshot.getValue(Teacher.class);
                                 if (teacher != null && teacher.getMeetings() != null) {
                                     teacher.DeleteOldMeetings(teacherSnapshot);
+                                }
+                                if (teacher != null && teacher.getMessages() != null) {
+                                    List<Message> allMessages = new ArrayList<>(teacher.getMessages());
+                                    for( Message M : allMessages ){
+                                        if(M.checkIfOld()){
+                                            teacher.getMessages().remove(M);
+                                        }
+                                    }
+                                    if(teacher.getMessages().size() < teacher.getNewMessage()) {
+                                        teacher.setNewMessage(teacher.getMessages().size());
+                                    }
+                                    teachersRef.child(teacherSnapshot.getKey()).setValue(teacher);
+                                }
+                            }
+                        }
+                    }
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        // Handle error
+                    }
+
+                });
+        DatabaseReference studentsRef = database.getReference("students");
+        studentsRef.orderByChild("name")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            for (DataSnapshot studentsSnapshot : dataSnapshot.getChildren()) {
+                                User student = studentsSnapshot.getValue(User.class);
+                                if (student != null && student.getMessages() != null) {
+                                    List<Message> allMessages = new ArrayList<>(student.getMessages());
+                                    for( Message M : allMessages ){
+                                        if(M.checkIfOld()){
+                                            student.getMessages().remove(M);}
+                                    }
+                                    if(student.getMessages().size() < student.getNewMessage()) {
+                                        student.setNewMessage(student.getMessages().size());
+                                        studentsSnapshot.getRef().child("newMessage").setValue(student.getNewMessage());
+                                    }
+
+                                    studentsSnapshot.getRef().child("Notification").setValue(student.getMessages());
+                                    studentsSnapshot.getRef().setValue(student);
                                 }
                             }
                         }
@@ -86,16 +133,16 @@ public class EasyStudy extends Application {
                     }
                 });
     }
-    public static void addStudent(User student, Context context) {
+    public static void addStudent(User student, String username, Context context) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("students");
 
         // Check if a user with the same name already exists
-        databaseReference.orderByChild("name").equalTo(student.getName()).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.orderByKey().equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (!userExist(dataSnapshot, student.getName(), student.getPassword())) {
+                if (!userExist(dataSnapshot, username)) {
                     // User does not exist with the same name and password, proceed to add
-                    addStudentToDatabase(student, databaseReference, context);
+                    addStudentToDatabase(student, username, databaseReference, context);
                 } else {
                     // User with the same name and password already exists
                     showErrorMessageDialog(context, "User with the same name and password already exists.");
@@ -112,12 +159,11 @@ public class EasyStudy extends Application {
 
     // TODO: ADD THE SAME THING TO THE TEACHER ( ADD TEACHER AND ADD TEACHER TO DATABASE )
 
-        private static void addStudentToDatabase(User student, DatabaseReference databaseReference, Context context) {
-        // Generate a unique key for the new student
-        String studentId = databaseReference.push().getKey();
-        if(studentId != null){
+        private static void addStudentToDatabase(User student,String username, DatabaseReference databaseReference, Context context) {
+
+        if(username != null){
         // Add the student name to the database
-        databaseReference.child(studentId).setValue(student)
+        databaseReference.child(username).setValue(student)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("Firebase", "Student added successfully");
                     EasyStudy.showInfoMessageDialog(context, "You have registered successfully to EasyStudy! :)");
@@ -126,16 +172,16 @@ public class EasyStudy extends Application {
     }}
 
     // Add a teacher to the "teachers" table in the Realtime Database
-    public static void addTeacher(Teacher teacher, Context context) {
+    public static void addTeacher(Teacher teacher, String Username, Context context) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("teachers");
 
         // Check if a user with the same name already exists
-        databaseReference.orderByChild("name").equalTo(teacher.getName()).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.orderByKey().equalTo(Username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (!userExist(dataSnapshot, teacher.getName(), teacher.getPassword())) {
+                if (!userExist(dataSnapshot, Username)) {
                     // User does not exist with the same name and password, proceed to add
-                    addTeacherToDatabase(teacher, databaseReference, context);
+                    addTeacherToDatabase(teacher, Username, databaseReference, context);
                 } else {
                     // User with the same name and password already exists
                     showErrorMessageDialog(context, "User with the same name and password already exists.");
@@ -151,12 +197,11 @@ public class EasyStudy extends Application {
 
 
     // Method to add a teacher to the database
-    private static void addTeacherToDatabase(Teacher teacher, DatabaseReference databaseReference, Context context) {
-        // Generate a unique key for the new teacher
-        String teacherId = databaseReference.push().getKey();
-        if (teacherId != null) {
+    private static void addTeacherToDatabase(Teacher teacher, String Username, DatabaseReference databaseReference, Context context) {
+
+        if (Username != null) {
             // Add the teacher object to the database
-            databaseReference.child(teacherId).setValue(teacher)
+            databaseReference.child(Username).setValue(teacher)
                     .addOnSuccessListener(aVoid -> {
                         Log.d("Firebase", "Teacher added successfully");
                         EasyStudy.showInfoMessageDialog(context, "You have registered successfully to EasyStudy! :)");
@@ -170,7 +215,7 @@ public class EasyStudy extends Application {
         DatabaseReference teachersReference = FirebaseDatabase.getInstance().getReference("teachers");
 
         // Check in the students table
-        studentsReference.orderByChild("name").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
+        studentsReference.orderByKey().equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot studentSnapshot) {
                 if (studentSnapshot.exists()) {
@@ -178,7 +223,7 @@ public class EasyStudy extends Application {
                     callback.onUserType(UserType.STUDENT, 1); // Return 1 for student
                 } else {
                     // User not found in students, check in teachers
-                    teachersReference.orderByChild("name").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
+                    teachersReference.orderByKey().equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot teacherSnapshot) {
                             if (teacherSnapshot.exists()) {
@@ -207,7 +252,7 @@ public class EasyStudy extends Application {
         });
     }
 
-    private static boolean userExist(DataSnapshot dataSnapshot, String username, String password) {
+    private static boolean userExist(DataSnapshot dataSnapshot, String username) {
         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
             if (snapshot.getKey() != null) {
                 if (snapshot.getKey().equals(username)) {

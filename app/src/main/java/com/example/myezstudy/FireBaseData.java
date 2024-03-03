@@ -24,7 +24,7 @@ public class FireBaseData {
     }
 
     // Method to update student
-    public void updateStudent(String username, String password, String email,
+    public void updateStudent(String username, String password, String email, String age,
                               String bio, String phone, final UserSearchListener listener) {
         // Search in students table
         studentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -34,12 +34,14 @@ public class FireBaseData {
                     String storedUsername = studentSnapshot.child("name").getValue(String.class);
                     String storedPassword = studentSnapshot.child("password").getValue(String.class);
                     if (storedUsername != null && storedPassword != null && storedUsername.equals(username) && storedPassword.equals(password)) {
+                        if(!age.isEmpty())
+                            studentSnapshot.getRef().child("age").setValue(age);
                         if(!email.isEmpty())
                             studentSnapshot.getRef().child("email").setValue(email);
                         if(!bio.isEmpty())
-                        studentSnapshot.getRef().child("shortBio").setValue(bio);
+                            studentSnapshot.getRef().child("shortBio").setValue(bio);
                         if(!phone.isEmpty())
-                        studentSnapshot.getRef().child("phone").setValue(phone);
+                            studentSnapshot.getRef().child("phone").setValue(phone);
                         return;
                     }
                 }
@@ -55,7 +57,7 @@ public class FireBaseData {
     }
 
     // Method to update teacher
-    public void updateTeacher(String username, String password, String email, String bio, String phone, final UserSearchListener listener) {
+    public void updateTeacher(String username, String password, String email, String age, String bio, String phone, final UserSearchListener listener) {
         // Search in teachers table
         teachersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -64,6 +66,8 @@ public class FireBaseData {
                     String storedUsername = teacherSnapshot.child("name").getValue(String.class);
                     String storedPassword = teacherSnapshot.child("password").getValue(String.class);
                     if (storedUsername != null && storedPassword != null && storedUsername.equals(username) && storedPassword.equals(password)) {
+                        if(!age.isEmpty())
+                            teacherSnapshot.getRef().child("age").setValue(age);
                         if(!email.isEmpty())
                             teacherSnapshot.getRef().child("email").setValue(email);
                         if(!bio.isEmpty())

@@ -30,7 +30,7 @@ public class Links extends AppCompatActivity {
     TextInputLayout enterLink;
 
     private DatabaseReference teachersRef, studentRef;
-    private String teacherName;
+    private String Username;
     private Button backButton2, addLink;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +53,9 @@ public class Links extends AppCompatActivity {
         teachersRef = database.getReference("teachers");
 
         // Retrieve teacher name directly without checking the intent
-        teacherName = UserInformation.getSavedUsername(this);
+        Username = UserInformation.getSavedUsername(this);
 
-        if (teacherName == null || teacherName.isEmpty()) {
+        if (Username == null || Username.isEmpty()) {
             // Handle the case where teacherName is not provided
             finish(); // Close the activity if teacherName is not available
         }
@@ -79,8 +79,8 @@ public class Links extends AppCompatActivity {
         }
 
         // Assuming you have the teacher's name, search for the teacher in the database
-        if (teacherName != null && !teacherName.isEmpty()) {
-            teachersRef.orderByChild("name").equalTo(teacherName)
+        if (Username != null && !Username.isEmpty()) {
+            teachersRef.orderByKey().equalTo(Username)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -92,7 +92,7 @@ public class Links extends AppCompatActivity {
                                         teacher.addLinks(link);
 
                                         // Push the updated teacher object back to Firebase
-                                        teachersRef.child(teacherSnapshot.getKey()).setValue(teacher);
+                                        teachersRef.child(Username).setValue(teacher);
 
                                         // Notify the user that links have been uploaded
                                         Toast.makeText(Links.this, "Links uploaded successfully", Toast.LENGTH_SHORT).show();
@@ -117,7 +117,7 @@ public class Links extends AppCompatActivity {
 
 
     private void loadFiles() {
-        teachersRef.orderByChild("name").equalTo(teacherName)
+        teachersRef.orderByChild("name").equalTo(Username)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

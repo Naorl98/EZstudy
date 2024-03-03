@@ -23,9 +23,9 @@ import java.util.Locale;
 
 public class StudentProfile extends AppCompatActivity {
 
-    Button logout, ProfileEditStud, Search, MeetingStud;
+    Button logout, ProfileEditStud, Search, MeetingStud, messagesStudButton;
     private DatabaseReference studentsRef;
-    private String name;
+    private String Username;
     private int count;
     private CalendarView calendarMettings;
     private Calendar calendar;
@@ -34,10 +34,11 @@ public class StudentProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_profile);
         calendarMettings =  findViewById(R.id.calendarView);
+        messagesStudButton =findViewById(R.id.messagesStudButton);
         calendar = Calendar.getInstance();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         studentsRef = database.getReference("students");
-        name = UserInformation.getSavedUsername(this);
+        Username = UserInformation.getSavedUsername(this);
         logout =  (Button) findViewById(R.id.logoutStud);
         // Handle "Logout" button click
         logout.setOnClickListener(new View.OnClickListener() {
@@ -47,6 +48,13 @@ public class StudentProfile extends AppCompatActivity {
                 //Example
                 startActivity(new Intent(StudentProfile.this, MainActivity.class));
                 //finish(); // Close the current activity
+            }
+        });
+        messagesStudButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Example
+                startActivity(new Intent(StudentProfile.this, Messages.class));
             }
         });
         ProfileEditStud =  (Button) findViewById(R.id.ProfileEditStud);
@@ -93,13 +101,13 @@ public class StudentProfile extends AppCompatActivity {
                 //finish(); // Close the current activity
             }
         });
-        getDate();
+        getCountOfNew();
         count = 0;
         calendarMettings.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
 
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                studentsRef.orderByChild("name").equalTo(name)
+                studentsRef.orderByKey().equalTo(Username)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -131,12 +139,28 @@ public class StudentProfile extends AppCompatActivity {
 
         });
     }
-    public void getDate(){
-        long date = calendarMettings.getDate();
-        SimpleDateFormat SimpleDate = new SimpleDateFormat("dd/MM/yy", Locale.getDefault());
-        calendar.setTimeInMillis(date);
-        String selected_date = SimpleDate.format(calendar.getTime());
-        Toast.makeText(this,selected_date, Toast.LENGTH_SHORT ).show();
+    public void getCountOfNew() {
+        studentsRef.orderByKey().equalTo(Username)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            for (DataSnapshot studentSnapshot : dataSnapshot.getChildren()) {
+                                User student = studentSnapshot.getValue(User.class);
+                                if (student != null) {
+                                    Toast.makeText(StudentProfile.this, "There are " + student.getNewMessage() + "   new messages"
+                                            , Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        count = 0;
+                    }
+                });
     }
 }
 

@@ -170,8 +170,8 @@ public class User {
     public String toString() {
         return
                 "name:" + name +
-                        ", age:" + age + "\n" +
-                        "phone:" + phone +"\n" +
+                        ", age:" + age +
+                        ",phone:" + phone +"\n" +
                         "email:" + email + "\n" +
                         "ShortBio:" + shortBio + "\n";
 

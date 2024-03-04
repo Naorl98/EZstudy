@@ -24,10 +24,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SearchTeachers extends AppCompatActivity {
     private ListView teacherListView;
-    private List<Teacher> foundTeachers;
+    private List<String> foundTeachers;
     private List<String> foundUsernames;
     private ArrayAdapter adapter;
     private DatabaseReference teachersRef;
@@ -64,9 +65,9 @@ public class SearchTeachers extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Get the input values
-                String name = ByName.getEditText().getText().toString().trim();
-                String username = ByUsername.getEditText().getText().toString().trim();
-                String subject = BySubject.getEditText().getText().toString().trim();
+                String name = ByName.getEditText().getText().toString().trim().toLowerCase();
+                String username = ByUsername.getEditText().getText().toString().trim().toLowerCase();
+                String subject = BySubject.getEditText().getText().toString().trim().toLowerCase();
                 // Initialize Firebase database reference
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 teachersRef = database.getReference("teachers");
@@ -83,43 +84,21 @@ public class SearchTeachers extends AppCompatActivity {
                 // Perform the search in Firebase database
                 // Perform the search in Firebase database
                 Query query;
-                if (!name.isEmpty() && !username.isEmpty() && !subject.isEmpty()) {
-                    // Search by all parameters (name, age, and subject)
-                    query = ((teachersRef.orderByKey().equalTo(username)).orderByChild("name").equalTo(name))
-                            .orderByChild("subject").equalTo(subject);
-                }
-                else if (!name.isEmpty() && username.isEmpty() && subject.isEmpty()) {
-                    // Search only by name
-                    query = teachersRef.orderByChild("name").equalTo(name);
-                }
-                else if (name.isEmpty() && !username.isEmpty() && subject.isEmpty()) {
-                    // Search only by username
-                    query = teachersRef.orderByKey().equalTo(username);
-                }
-                else if (name.isEmpty() && username.isEmpty() && !subject.isEmpty()) {
-                    // Search only by subject
-                    query = teachersRef.orderByChild("subjects/" + subject);
-                } else {
-                    // Handle the case where no search parameters are provided
-                    Log.e("FoundActivity", "No search parameters provided");
-                    return;
-                }
-
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                teachersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
                             for (DataSnapshot teacherSnapshot : dataSnapshot.getChildren()) {
                                 Teacher teacher = teacherSnapshot.getValue(Teacher.class);
-                                // Additional logging for debugging
                                 Log.i("FoundActivity", "Teacher found: " + teacher);
-
                                 if (teacher != null &&
-                                        (name.isEmpty() || teacher.getName().toLowerCase().equals(name.toLowerCase())) &&
-                                        (username.isEmpty() || teacherSnapshot.getKey().equals(username)) &&
-                                        (subject.isEmpty() || teacherContainsSubject(teacher, subject.toLowerCase()))) {
+                                        (name.isEmpty() || teacher.getName().toLowerCase().equals(name)) &&
+                                        (username.isEmpty() || Objects.requireNonNull(teacherSnapshot.getKey())
+                                                .toLowerCase().equals(username)) &&
+                                        (subject.isEmpty() || teacherContainsSubject(teacher, subject))) {
                                     // If conditions are met, add the teacher to the list of found teachers
-                                    foundTeachers.add(teacher);
+                                    foundTeachers.add("Username: " + teacherSnapshot.getKey() +"\n" + teacher
+                                    + "\n");
                                     foundUsernames.add(teacherSnapshot.getKey());
                                 }
                             }

@@ -147,6 +147,7 @@ public class EasyStudy extends Application {
                     // User with the same name and password already exists
                     showErrorMessageDialog(context, "User with the same name and password already exists.");
                 }
+
             }
 
             @Override

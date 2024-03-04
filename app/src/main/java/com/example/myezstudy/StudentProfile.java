@@ -117,9 +117,9 @@ public class StudentProfile extends AppCompatActivity {
                                         if (student != null && student.getMeetings() != null) {
                                             for( Meeting M : student.getMeetings()){
 
-                                                if(M.getDay().equals(Integer.toString(dayOfMonth)) &&
-                                                        M.getMonth().equals(Integer.toString(month + 1)) &&
-                                                        M.getYear().equals(Integer.toString(year))){
+                                                if(M.getDay() == dayOfMonth  &&
+                                                        M.getMonth() == (month + 1) &&
+                                                        M.getYear() == year){
                                                     count++;
                                                 }
                                             }

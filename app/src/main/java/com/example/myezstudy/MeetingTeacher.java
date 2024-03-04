@@ -51,7 +51,7 @@ public class MeetingTeacher extends AppCompatActivity {
         teachersRef = database.getReference("teachers");
         loadMettings();
 
-    backButton.setOnClickListener(new View.OnClickListener() {
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();  // Close the activity when the back button is clicked
@@ -68,23 +68,23 @@ public class MeetingTeacher extends AppCompatActivity {
 
         });
         createMeeting.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if(isNumeric(startCreate.getEditText().getText().toString()) &&
-                    isNumeric(endCreate.getEditText().getText().toString()) &&
-                    isNumeric(price.getEditText().getText().toString())
-            ){
-                if(checkDate())
-                    uploadMeeting();
+            @Override
+            public void onClick(View v) {
+                if(isNumeric(startCreate.getEditText().getText().toString()) &&
+                        isNumeric(endCreate.getEditText().getText().toString()) &&
+                        isNumeric(price.getEditText().getText().toString())
+                ){
+                    if(checkDate())
+                        uploadMeeting();
+                    else
+                        Toast.makeText(MeetingTeacher.this, "The date has passed or wrong hours", Toast.LENGTH_SHORT).show();
+                }
                 else
-                    Toast.makeText(MeetingTeacher.this, "The date has passed or wrong hours", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MeetingTeacher.this, "Enter only numbers", Toast.LENGTH_SHORT).show();
+
+
             }
-            else
-                Toast.makeText(MeetingTeacher.this, "Enter only numbers", Toast.LENGTH_SHORT).show();
-
-
-        }
-    });
+        });
     }
     private void loadMettings() {
         teachersRef.orderByKey().equalTo(teacherName)
@@ -140,11 +140,10 @@ public class MeetingTeacher extends AppCompatActivity {
         });
     }
     private void uploadMeeting() {
-        Meeting newMeeting = new Meeting(Integer.toString(dayCreate),
-                Integer.toString(monthCreate),
-                Integer.toString(yearCreate),
-                startCreate.getEditText().getText().toString(),
-                endCreate.getEditText().getText().toString(),
+        Meeting newMeeting = new Meeting(dayCreate,
+                monthCreate, yearCreate,
+                Integer.parseInt(startCreate.getEditText().getText().toString()),
+                Integer.parseInt(endCreate.getEditText().getText().toString()),
                 Integer.parseInt(price.getEditText().getText().toString()));        // Check if at least one link is provided
         if (newMeeting == null ) {
             Toast.makeText(MeetingTeacher.this, "Please enter all the details", Toast.LENGTH_SHORT).show();
@@ -153,7 +152,7 @@ public class MeetingTeacher extends AppCompatActivity {
 
         // Assuming you have the teacher's name, search for the teacher in the database
         if (teacherName != null && !teacherName.isEmpty()) {
-            teachersRef.orderByChild("name").equalTo(teacherName)
+            teachersRef.orderByKey().equalTo(teacherName)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -163,7 +162,7 @@ public class MeetingTeacher extends AppCompatActivity {
                                     if (teacher != null ) {
                                         if(teacher.getMeetings() != null){
                                             for (Meeting meeting : teacher.getMeetings()) {
-                                                if (meeting.CompareTo(newMeeting)) {
+                                                if (meeting.equalTo(newMeeting)) {
                                                     Toast.makeText(MeetingTeacher.this, "There is a meeting at this time", Toast.LENGTH_SHORT).show();
                                                     return;
                                                 }
@@ -179,7 +178,7 @@ public class MeetingTeacher extends AppCompatActivity {
                                 }
                             }
                             else {
-                                Toast.makeText(MeetingTeacher.this, "Cant create meeting", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MeetingTeacher.this, "Database error", Toast.LENGTH_SHORT).show();
                             }
                         }
                         @Override

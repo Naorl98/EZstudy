@@ -127,14 +127,11 @@ public class ViewTeacher extends AppCompatActivity {
                                                     student.addMeeting( new Meeting( teacher,TeacherUsername, teacher.getMeetings().get(position) ));
                                                     teacherToUpdate.Notify(new Meeting( student, nameStudent ,teacher.getMeetings().get(position) ));
                                                     teachersRef.child(TeacherUsername).setValue(teacherToUpdate);
-                                                    //studentSnapShot.getRef().child("meetings").setValue(student.getMeetings());
                                                     studentRef.child(nameStudent).setValue(student);
                                                     Toast.makeText(ViewTeacher.this, "Meeting created successfully", Toast.LENGTH_SHORT).show();
 
-                                                    // Notify the user that links have been uploaded
                                                 }
                                             }
-                                            // Push the updated teacher object back to Firebase
                                             dialog.dismiss();
                                         }
                                     }
@@ -144,19 +141,15 @@ public class ViewTeacher extends AppCompatActivity {
 
                                     }
                                 });
-
-
                     }
                 });
                 builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing
                         dialog.dismiss();
                     }
                 });
-
                 AlertDialog alert = builder.create();
                 alert.show();
             }

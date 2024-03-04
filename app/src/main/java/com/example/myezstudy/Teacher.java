@@ -67,7 +67,7 @@ public class Teacher extends User {
     @Override
     public void  Notify(Meeting M) {
         for (Meeting meeting : super.getMeetings()) {
-            if (meeting.CompareTo(M)) {
+            if (meeting.equalTo(M)) {
                 if (!meeting.ifAvailable()) {
                     Message newM = new Message("There is a new meeting:\n" + meeting);
                     addMessage(newM);
@@ -97,21 +97,21 @@ public class Teacher extends User {
             allMeetings.add(M);
         }
         for (Meeting meeting : allMeetings) {
-            if (year > Integer.parseInt(meeting.getYear()))
+            if (year > meeting.getYear())
                 this.NotifyToDeleteMeeting(meeting);
-            else if (year == Integer.parseInt(meeting.getYear()) &&
-                    month > Integer.parseInt(meeting.getMonth()))
+            else if (year == meeting.getYear() &&
+                    month > meeting.getMonth())
                 this.NotifyToDeleteMeeting(meeting);
-            else if (year == Integer.parseInt(meeting.getYear()) &&
-                    month == Integer.parseInt(meeting.getMonth()) &&
-                    day > Integer.parseInt(meeting.getDay()))
+            else if (year == meeting.getYear() &&
+                    month ==meeting.getMonth() &&
+                    day > meeting.getDay())
                 this.NotifyToDeleteMeeting(meeting);
         }
     }
 @Override
     public void NotifyToDeleteMeeting(Meeting M) {
         for( Meeting meeting : super.getMeetings()){
-            if(meeting.CompareTo(M)){
+            if(meeting.equalTo(M)){
                 super.getMeetings().remove(meeting);
                 if(meeting.ifAvailable())
                     return;

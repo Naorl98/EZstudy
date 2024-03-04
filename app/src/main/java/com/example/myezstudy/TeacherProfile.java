@@ -57,9 +57,9 @@ public class TeacherProfile extends AppCompatActivity {
                                         Teacher teacher = teacherSnapshot.getValue(Teacher.class);
                                         if (teacher != null && teacher.getMeetings() != null) {
                                             for( Meeting M : teacher.getMeetings()){
-                                                if(M.getDay().equals(Integer.toString(dayOfMonth)) &&
-                                                    M.getMonth().equals(Integer.toString(month + 1)) &&
-                                                    M.getYear().equals(Integer.toString(year))){
+                                                if(M.getDay()== dayOfMonth &&
+                                                    M.getMonth()==( month + 1) &&
+                                                    M.getYear()== year){
                                                     count++;
                                                 }
                                             }
@@ -68,7 +68,7 @@ public class TeacherProfile extends AppCompatActivity {
                                         }
                                     }
                                 }
-                    }
+                            }
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
                         count = 0;

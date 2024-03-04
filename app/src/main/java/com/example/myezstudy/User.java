@@ -105,7 +105,7 @@ public class User {
         if(this.meetings == null)
             this.meetings = new ArrayList<>();
         for( Meeting meeting : meetings){
-            if(meeting.CompareTo(M)){
+            if(meeting.equalTo(M)){
                 meetings.remove(meeting);
                 // Initialize Firebase database reference
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -143,7 +143,7 @@ public class User {
         if(this.meetings == null)
             this.meetings = new ArrayList<>();
         for( Meeting meeting : meetings) {
-            if (meeting.CompareTo(M)) {
+            if (meeting.equalTo(M)) {
                 meetings.remove(meeting);
                 this.getMessages().add(new Message("The meeting: " + meeting
                         + "\n was cancelled"));

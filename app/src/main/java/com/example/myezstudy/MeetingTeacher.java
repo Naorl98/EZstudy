@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -132,6 +133,13 @@ public class MeetingTeacher extends AppCompatActivity {
                         adapter.notifyDataSetChanged();
                         Toast.makeText(MeetingTeacher.this, "Meeting delete successfully", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("Send Message", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(MeetingTeacher.this, SendChatMessage.class);
+                        intent.putExtra("PartnerUsername", teacher.getMeetings().get(position).getPartnerUsername());
+                        startActivity(intent);
                     }
                 });
                 AlertDialog alert = builder.create();

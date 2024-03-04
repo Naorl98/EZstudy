@@ -22,6 +22,8 @@ public class User {
     private String shortBio;
     private List<Meeting> meetings;
     private List<Message> messages;
+    private List<ChatMessage> chatMessages;
+
     private int newMessage; // count new message;
 
 
@@ -89,9 +91,19 @@ public class User {
     public void setEmail(String email) {this.email = email;}
     public void setPhone(String phone) {this.phone = phone;}
 
+    public List<ChatMessage> getChatMessages() { return chatMessages; }
 
+    public void setChatMessages(List<ChatMessage> chatMessages) {
+        this.chatMessages = chatMessages;
+    }
 
-
+    public void addChatMessage(ChatMessage Cm) {
+        if(this.chatMessages == null)
+            this.chatMessages = new ArrayList<>();
+        chatMessages.add(Cm);
+        newMessage++;
+        Collections.sort(this.getChatMessages());
+    }
     public void setMessages(List<Message> messages) {
         this.messages = messages;
     }
@@ -105,14 +117,7 @@ public class User {
         meetings.add(M);
         Collections.sort(this.getMeetings());
     }
-    public void deleteOldMessages( DatabaseReference ref) {
-        List<Message> allMessages = new ArrayList<>(this.getMessages());
-        for (Message M : allMessages) {
-            if (M.checkIfOld()) {
-                this.getMessages().remove(M);
-            }
-        }
-    }
+
     public void Notify(Meeting M){
         if(this.meetings == null)
             this.meetings = new ArrayList<>();

@@ -77,15 +77,30 @@ public class EasyStudy extends Application {
                                 if (teacher != null && teacher.getMeetings() != null) {
                                     teacher.DeleteOldMeetings(teacherSnapshot);
                                 }
-                                if (teacher != null && teacher.getMessages() != null) {
+                                if (teacher != null ) {
+                                    if(teacher.getMessages() != null){
                                     List<Message> allMessages = new ArrayList<>(teacher.getMessages());
-                                    for( Message M : allMessages ){
-                                        if(M.checkIfOld()){
+                                        for( Message M : allMessages ){
+                                            if(M.checkIfOld()){
                                             teacher.getMessages().remove(M);
+                                            }
                                         }
                                     }
-                                    if(teacher.getMessages().size() < teacher.getNewMessage()) {
-                                        teacher.setNewMessage(teacher.getMessages().size());
+                                    if(teacher.getChatMessages() != null){
+                                        List<ChatMessage> allChatMessages = new ArrayList<>(teacher.getChatMessages());
+                                        for( ChatMessage CM : allChatMessages ){
+                                            if(CM.checkIfOld()){
+                                                    teacher.getChatMessages().remove(CM);
+                                            }
+                                        }
+                                    }
+                                    int messagesSize = 0;
+                                    if(teacher.getMessages() != null)
+                                        messagesSize += teacher.getMessages().size();
+                                    if(teacher.getChatMessages() != null)
+                                        messagesSize += teacher.getChatMessages().size();
+                                    if(messagesSize < teacher.getNewMessage()) {
+                                        teacher.setNewMessage(messagesSize);
                                     }
                                     teachersRef.child(teacherSnapshot.getKey()).setValue(teacher);
                                 }
@@ -100,27 +115,39 @@ public class EasyStudy extends Application {
 
                 });
         DatabaseReference studentsRef = database.getReference("students");
-        studentsRef.orderByChild("name")
+        studentsRef.orderByKey()
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
                             for (DataSnapshot studentsSnapshot : dataSnapshot.getChildren()) {
                                 User student = studentsSnapshot.getValue(User.class);
-                                if (student != null && student.getMessages() != null) {
-                                    List<Message> allMessages = new ArrayList<>(student.getMessages());
-                                    for( Message M : allMessages ){
-                                        if(M.checkIfOld()){
-                                            student.getMessages().remove(M);}
+                                if (student != null ) {
+                                    if(student.getMessages() != null){
+                                        List<Message> allMessages = new ArrayList<>(student.getMessages());
+                                        for( Message M : allMessages ){
+                                            if(M.checkIfOld()){
+                                                student.getMessages().remove(M);
+                                            }
+                                        }
                                     }
-                                    if(student.getMessages().size() < student.getNewMessage()) {
-                                        student.setNewMessage(student.getMessages().size());
-                                        studentsSnapshot.getRef().child("newMessage").setValue(student.getNewMessage());
+                                    if(student.getChatMessages() != null){
+                                        List<ChatMessage> allChatMessages = new ArrayList<>(student.getChatMessages());
+                                        for( ChatMessage CM : allChatMessages ){
+                                            if(CM.checkIfOld()){
+                                                student.getChatMessages().remove(CM);
+                                            }
+                                        }
                                     }
-
-                                    studentsSnapshot.getRef().child("Notification").setValue(student.getMessages());
-                                    studentsSnapshot.getRef().setValue(student);
-                                }
+                                    int messagesSize = 0;
+                                    if(student.getMessages() != null)
+                                        messagesSize += student.getMessages().size();
+                                    if(student.getChatMessages() != null)
+                                        messagesSize += student.getChatMessages().size();
+                                    if(messagesSize < student.getNewMessage()) {
+                                        student.setNewMessage(messagesSize);
+                                    }
+                                    studentsRef.child(studentsSnapshot.getKey()).setValue(student);                                }
                             }
                         }
                     }

@@ -80,6 +80,18 @@ public class User {
     }
     public List<Meeting> getMeetings() { return meetings; }
     public List<Message> getMessages() { return messages; }
+    public void setAge(String age) {
+        this.age = age;
+    }
+    public void setBio(String bio) {
+        this.shortBio = bio;
+    }
+    public void setEmail(String email) {this.email = email;}
+    public void setPhone(String phone) {this.phone = phone;}
+
+
+
+
     public void setMessages(List<Message> messages) {
         this.messages = messages;
     }
@@ -149,6 +161,7 @@ public class User {
                         + "\n was cancelled"));
                 this.newMessage++;
                 Collections.sort(this.getMessages());
+                return;
             }
         }
     }

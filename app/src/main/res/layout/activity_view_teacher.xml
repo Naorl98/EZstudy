@@ -32,8 +32,9 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:autoSizeTextType="none"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/FilesList"
@@ -41,9 +42,11 @@
         android:layout_width="413dp"
         android:layout_height="241dp"
         android:layout_marginTop="150dp"
+        android:layout_marginBottom="24dp"
         android:background="@color/white"
         android:listSelector="#FF9900"
         android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/Links"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -72,8 +75,9 @@
         android:background="@color/white"
         android:listSelector="#FF9900"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/BackBut"

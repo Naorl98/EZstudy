@@ -141,10 +141,10 @@ public class Teacher extends User {
                                 // Handle error
                             }
                         });
+                return;
             }
         }
     }
-    // TODO: Add getters and setters for other attributes
 
 
 }

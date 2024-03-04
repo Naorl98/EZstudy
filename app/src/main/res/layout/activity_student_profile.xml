@@ -13,8 +13,12 @@
         android:layout_height="111dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="52dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="1dp"
         android:text="Search"
         app:backgroundTint="#FF9900"
+        app:layout_constraintBottom_toTopOf="@+id/imageView4"
+        app:layout_constraintEnd_toStartOf="@+id/ProfileEditStud"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,8 +29,10 @@
         android:layout_marginStart="288dp"
         android:layout_marginTop="52dp"
         android:layout_marginEnd="7dp"
+        android:layout_marginBottom="1dp"
         android:text="Meetings"
         app:backgroundTint="#FF9900"
+        app:layout_constraintBottom_toTopOf="@+id/imageView4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -48,9 +54,12 @@
         android:layout_width="409dp"
         android:layout_height="311dp"
         android:layout_marginStart="4dp"
+        android:layout_marginTop="22dp"
         android:layout_marginBottom="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView4" />
 
     <Button
         android:id="@+id/ProfileEditStud"
@@ -58,9 +67,13 @@
         android:layout_height="111dp"
         android:layout_marginStart="144dp"
         android:layout_marginTop="52dp"
-        android:text="Profile"
+        android:layout_marginEnd="28dp"
 
+        android:layout_marginBottom="1dp"
+        android:text="Profile"
         app:backgroundTint="#FF9900"
+        app:layout_constraintBottom_toTopOf="@+id/imageView4"
+        app:layout_constraintEnd_toStartOf="@+id/MeetingStud"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -85,10 +98,12 @@
         android:layout_height="48dp"
         android:layout_marginStart="276dp"
         android:layout_marginTop="4dp"
+        android:layout_marginEnd="7dp"
         android:layout_marginBottom="679dp"
         android:text="Messages"
         app:backgroundTint="#FF9900"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

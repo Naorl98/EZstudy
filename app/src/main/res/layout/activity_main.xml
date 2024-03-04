@@ -38,13 +38,15 @@
         android:id="@+id/RegisterButton"
         android:layout_width="248dp"
         android:layout_height="68dp"
+        android:layout_marginStart="81dp"
         android:layout_marginTop="609dp"
+        android:layout_marginEnd="41dp"
         android:layout_marginBottom="67dp"
         android:text="Register"
         app:backgroundTint="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
@@ -53,11 +55,15 @@
         android:id="@+id/UsernameLog"
         android:layout_width="394dp"
         android:layout_height="74dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="221dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="436dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.304"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/UsernameLogtxt"
@@ -72,6 +78,8 @@
         android:layout_width="394dp"
         android:layout_height="74dp"
         android:layout_marginTop="344dp"
+        android:layout_marginBottom="313dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.47"
         app:layout_constraintStart_toStartOf="parent"

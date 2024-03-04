@@ -48,9 +48,7 @@ public class EasyStudy extends Application {
                 UserInformation.KEY_Type = "Teacher";
                 // Navigate to the teacher's update profile page
                 Log.i(TAG,"teacher");
-
                 context.startActivity(new Intent(context, TeacherProfile.class));
-
                 break;
             case UNKNOWN:
                 // Navigate to the logout page or show an error message
@@ -214,7 +212,6 @@ public class EasyStudy extends Application {
     public static void checkUserExists(String username, String password, Context context, UserTypeCallback callback) {
         DatabaseReference studentsReference = FirebaseDatabase.getInstance().getReference("students");
         DatabaseReference teachersReference = FirebaseDatabase.getInstance().getReference("teachers");
-
         // Check in the students table
         studentsReference.orderByKey().equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -222,7 +219,8 @@ public class EasyStudy extends Application {
                 if (studentSnapshot.exists()) {
                     // User exists as a student
                     callback.onUserType(UserType.STUDENT, 1); // Return 1 for student
-                } else {
+                }
+                else{
                     // User not found in students, check in teachers
                     teachersReference.orderByKey().equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -230,12 +228,10 @@ public class EasyStudy extends Application {
                             if (teacherSnapshot.exists()) {
                                 // User exists as a teacher
                                 callback.onUserType(UserType.TEACHER, 0); // Return 0 for teacher
-                            } else {
-                                // User not found in teachers as well
-                                // Proceed with registration
-                                //showErrorMessageDialog(context, "User is not registered in the system.");
-                                callback.onUserType(UserType.UNKNOWN, -1); // Return -1 for unknown
                             }
+                            else
+                                callback.onUserType(UserType.UNKNOWN, -1); // Return -1 for UNKNOWN
+
                         }
 
                         @Override
@@ -245,12 +241,13 @@ public class EasyStudy extends Application {
                     });
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError studentError) {
                 Log.e("Firebase", "Database error: " + studentError.getMessage());
             }
         });
+
+
     }
 
     private static boolean userExist(DataSnapshot dataSnapshot, String username) {

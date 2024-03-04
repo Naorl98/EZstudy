@@ -54,23 +54,16 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onUserType(EasyStudy.UserType userType, int i) {
                         // Determine the user type based on the integer i
-                        if (i == 0) {
-                            // User type is teacher
+                        if (i == 0)// User type is teacher
                             userType = EasyStudy.UserType.TEACHER;
-
-                        } else if (i == 1) {
-                            // User type is student
+                        else if (i == 1) // User type is student
                             userType = EasyStudy.UserType.STUDENT;
-
-                        } else {
-                            // Unknown user type
+                        else {// Unknown user type
                             userType = EasyStudy.UserType.UNKNOWN;
                             EasyStudy.showErrorMessageDialog(MainActivity.this, "User is not registered in the system.");
                             return;
                         }
-
                         UserInformation.saveUserCredentials(MainActivity.this, username, password);
-
                         // Navigate to the appropriate page based on user type
                         EasyStudy.navigateToPage(MainActivity.this, userType);
                     }

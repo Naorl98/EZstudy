@@ -112,7 +112,7 @@ public class ViewTeacher extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(ViewTeacher.this);
                 builder.setTitle("Make a Meeting");
                 builder.setMessage("Do u want to choose that meeting? \n" +
-                        teacher.getMeetings().get(position).printDetails());
+                        AvailabileMeetings.get(position).printDetails());
                 builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int which) {
@@ -124,8 +124,8 @@ public class ViewTeacher extends AppCompatActivity {
                                             for (DataSnapshot studentSnapShot : dataSnapshot.getChildren()) {
                                                 User student = studentSnapShot.getValue(User.class);
                                                 if (student != null) {
-                                                    student.addMeeting( new Meeting( teacher,TeacherUsername, teacher.getMeetings().get(position) ));
-                                                    teacherToUpdate.Notify(new Meeting( student, nameStudent ,teacher.getMeetings().get(position) ));
+                                                    student.addMeeting( new Meeting( teacher,TeacherUsername, AvailabileMeetings.get(position) ));
+                                                    teacherToUpdate.Notify(new Meeting( student, nameStudent ,AvailabileMeetings.get(position) ));
                                                     teachersRef.child(TeacherUsername).setValue(teacherToUpdate);
                                                     studentRef.child(nameStudent).setValue(student);
                                                     Toast.makeText(ViewTeacher.this, "Meeting created successfully", Toast.LENGTH_SHORT).show();

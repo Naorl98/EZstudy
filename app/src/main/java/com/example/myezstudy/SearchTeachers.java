@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DataSnapshot;
@@ -102,6 +103,10 @@ public class SearchTeachers extends AppCompatActivity {
                                     foundUsernames.add(teacherSnapshot.getKey());
                                 }
                             }
+                        }
+                        else{
+                            Toast.makeText(SearchTeachers.this, "There is no such user", Toast.LENGTH_SHORT).show();
+
                         }
                         // Notify the adapter that the data set has changed
                         adapter.notifyDataSetChanged();

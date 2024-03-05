@@ -27,7 +27,7 @@ public class Messages extends AppCompatActivity {
     Button backButtonMes;
     private ListView MessageList, ChatList;
 
-    private DatabaseReference Ref;
+    DatabaseReference Ref;
     private String name;
     private String studentName;
 

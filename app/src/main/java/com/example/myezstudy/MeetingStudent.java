@@ -95,13 +95,15 @@ public class MeetingStudent extends AppCompatActivity {
                         dialog.dismiss();
                     }
                 });
-                builder.setNegativeButton("Send Message", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(MeetingStudent.this, SendChatMessage.class);
-                        intent.putExtra("PartnerUsername", student.getMeetings().get(position).getPartnerUsername());
-                        startActivity(intent);
-                    }
-                });
+                if( !(student.getMeetings().get(position).ifAvailable())) {
+                    builder.setNegativeButton("Send Message", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(MeetingStudent.this, SendChatMessage.class);
+                            intent.putExtra("PartnerUsername", student.getMeetings().get(position).getPartnerUsername());
+                            startActivity(intent);
+                        }
+                    });
+                }
                 AlertDialog alert = builder.create();
                 alert.show();
             }
